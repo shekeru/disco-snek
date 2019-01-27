@@ -1,34 +1,36 @@
 from shared.out import print
 #--Imports
 DiscordAPI = "wss://gateway.discord.gg/?encoding=json&v=6"
+import json, websocket, sys, traceback
 from threading import Thread, Timer
-import json, websocket, sys
-from queue import Queue
-class Interface(Queue):
+#websocket.enableTrace(True)
+class Interface():
     # Socket shit
     def __init__(self, main):
-        self.trigger = Timer(0, lambda: 0)
         self.seq, self.session, self.interval = 0, "", None
-        self.main, self.t = main, Thread(target = self.run)
-        super().__init__(), self.t.start(), self.spawn_ws()
+        self.main, self.trigger = main, Timer(0, lambda: 0)
+        self.spawn_ws()
     def spawn_ws(self):
         self.ws = websocket.WebSocketApp(DiscordAPI,
             on_message = self.on_message, on_open = self.on_open,
             on_error = self.on_error, on_close = self.on_close
         ); self.ws.t = Thread(target = lambda: self.ws.run_forever())
         self.trigger.cancel(), self.ws.t.start()
-    def on_message(self, ws, message):
-        self.put(message)
-    def on_error(self, ws, error):
-        print("[Gateway-WS]", error)
-        self.spawn_ws()
-    def on_close(self, ws):
-        self.spawn_ws()
-    def on_open(self, ws):
-        pass
     def send(self, event):
         self.ws.send(json.dumps(event))
-    # looping shit
+    def on_message(self, message):
+        event = json.loads(message)
+        if event['s']:
+            self.seq = event['s']
+        print(event), self.dispatch(event)
+    def on_open(self):
+        pass
+    def on_error(self, error):
+        print("[Gateway-WS]", error)
+        self.spawn_ws()
+    def on_close(self):
+        self.spawn_ws()
+    # initial dispatch
     def dispatch(self, event):
         if event['op'] is 11: # Event: Heartbeat ACK
             return self.resync()
@@ -43,13 +45,18 @@ class Interface(Queue):
             print('[Gateway-09] Invalidated', self.session)
             self.session = ""; return self.Identify()
         if event['op'] is 7: # Event: Reconnect
-            self.ws.close()
-    def run(self):
-        while True:
-            event = json.loads(self.get())
-            print(event), self.dispatch(event)
-            if event['s']:
-                self.seq = event['s']
+            return self.ws.close()
+        if event['t'] == 'READY':
+            print('[Connection] Session', event['d']['session_id'])
+            self.session = event['d']['session_id']
+        if event['t']:
+            try:
+                pass#self.mainystem.process(event['t'], event['d'])
+            except:
+                print('<%s>' % event['t'], traceback.format_exc())
+        if event['op'] is 0:
+            self.main.publish(event)
+    # heartbeat
     def resync(self):
         self.trigger.cancel()
         self.trigger = Timer(self.interval, self.Heartbeat)
@@ -80,4 +87,3 @@ class Interface(Queue):
                 "seq": self.seq
             }
         })
-websocket.enableTrace(True)
