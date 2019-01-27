@@ -1,6 +1,4 @@
-from shared.out import print
-#--Imports
-import requests
+import logging, requests
 #Constants
 DiscordAPI = "https://discordapp.com/api/v6"
 #--Rest API
@@ -14,9 +12,9 @@ class Interface(requests.Session):
         user = self.get('/users/@me')
         if user.status_code < 400:
             self.main.profile = user.json()
-            print(f"Hello {self.main.profile['username']}")
+            logging.debug(f"Hello {self.main.profile['username']}")
         else:
-            print("[Error] Token is invalid...")
+            logging.error("Token is invalid...")
     # Autism Calls
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)

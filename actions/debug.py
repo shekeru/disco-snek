@@ -1,4 +1,3 @@
-from shared.out import print
 
 def echo(user, message, code):
     if message['author']['id'] != user.profile['id']:

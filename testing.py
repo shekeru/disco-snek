@@ -1,13 +1,14 @@
-from shared.out import print
 import shared.main as bot
-import creds
+import creds, logging
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 user = bot.Interface(creds.token)
 
 @user.message_create
 @user.message_update
 def local_print(user, message, code):
-    print(code,'>>>', message['content'])
+    logging.info(code,'>>>', message['content'])
 
 from actions.debug import echo
 user.message_create(echo)

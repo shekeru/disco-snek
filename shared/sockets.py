@@ -1,7 +1,6 @@
-from shared.out import print
 #--Imports
 DiscordAPI = "wss://gateway.discord.gg/?encoding=json&v=6"
-import json, websocket, sys, traceback
+import json, websocket, sys, traceback, logging
 from threading import Thread, Timer
 #websocket.enableTrace(True)
 class Interface():
@@ -22,11 +21,11 @@ class Interface():
         event = json.loads(message)
         if event['s']:
             self.seq = event['s']
-        print(event), self.dispatch(event)
+        logging.debug(event), self.dispatch(event)
     def on_open(self):
         pass
     def on_error(self, error):
-        print("[Gateway-WS]", error)
+        logging.error("[Gateway-WS] %s" % error)
         self.spawn_ws()
     def on_close(self):
         self.spawn_ws()
@@ -36,24 +35,24 @@ class Interface():
             return self.resync()
         if event['op'] is 10: # Event: Hello
             self.interval = event['d']['heartbeat_interval'] / 1000
-            print('[Gateway-10] Interval set at',
-                self.interval, 'seconds'), self.resync()
+            logging.info(f'[Gateway-10] Interval set at {self.interval} seconds')
+            self.resync()
             if not self.session:
                 return self.Identify()
             return self.Resume()
         if event['op'] is 9: # Event: Invalid Session
-            print('[Gateway-09] Invalidated', self.session)
+            logging.info('[Gateway-09] Invalidated %s' % self.session)
             self.session = ""; return self.Identify()
         if event['op'] is 7: # Event: Reconnect
             return self.ws.close()
         if event['t'] == 'READY':
-            print('[Connection] Session', event['d']['session_id'])
+            logging.info('[Connection] Session %s' % event['d']['session_id'])
             self.session = event['d']['session_id']
         if event['t']:
             try:
                 pass#self.mainystem.process(event['t'], event['d'])
             except:
-                print('<%s>' % event['t'], traceback.format_exc())
+                logging.error('<%s> %s' % (event['t'], traceback.format_exc()))
         if event['op'] is 0:
             self.main.publish(event)
     # heartbeat
