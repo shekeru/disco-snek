@@ -1,6 +1,6 @@
 #--Imports
 from shared import sockets, rest
-#test comment
+
 class Interface:
     def __init__(self, token, bot = True):
         self.token, self.bot = token, bot
