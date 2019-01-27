@@ -1,3 +1,5 @@
+from core import user
+import logging
 
 def echo(user, message, code):
     if message['author']['id'] != user.profile['id']:

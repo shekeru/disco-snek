@@ -1,4 +1,5 @@
 import logging, requests, time
+from shared.utils import Map
 #Constants
 DiscordAPI = "https://discordapp.com/api/v6"
 #--Rest API
@@ -25,7 +26,7 @@ class Interface(requests.Session):
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)
         response = method(DiscordAPI+call,*args,**kwargs)
-        code, payload = response.status_code, response.json()
+        code, payload = response.status_code, Map(response.json())
         if code is 429:
             time.sleep(payload['retry_after'] / 995)
             return s.call(callType,call,*args,**kwargs)
