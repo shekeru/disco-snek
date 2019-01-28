@@ -2,7 +2,7 @@ from core import user
 import logging, time
 
 @user.add_events('MESSAGE_CREATE')
-@user.prefix('!', ['ping', 'pong'])
+@user.prefix('?', ['ping', 'delay'])
 def check_ping(msg, op):
 
     stamp = time.monotonic()
