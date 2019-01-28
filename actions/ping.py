@@ -2,9 +2,8 @@ from core import user
 import logging, time
 
 @user.add_events('MESSAGE_CREATE')
+@user.prefix('?', ['ping', 'delay'])
 def check_ping(msg, op):
-
-    if not msg.content.startswith('ping'): return
 
     stamp = time.monotonic()
     response = user.web.create_message(msg.channel_id, {'content': 'Pong!'})
