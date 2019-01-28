@@ -13,8 +13,8 @@ def fuck_robon(msg, op):
 
 @user.message_create
 @user.prefix('>', ['fuck', 'frick'])
-def alt_robon(msg, op):
-    reply = 'Love you, %s <3' % msg.author.username
+def alt_robon(msg, op, *args):
+    reply = args[0]+' you, %s <3' % msg.author.username
     user.web.simple_message(msg.channel_id, reply)
     logging.info(f'[TG-Robon-3.0] {reply}')
 #

@@ -1,6 +1,7 @@
 #--Imports
 from functools import wraps
 from threading import Timer, Thread
+from inspect import getargspec
 from shared import sockets, rest
 from queue import Queue
 import traceback, logging
@@ -43,9 +44,11 @@ class Interface:
             def execute(message, op):
                 for cmd in cmds:
                     if message.content.startswith(char+cmd):
+                        isArgs = getargspec(function).varargs
+                        args = message.content.split()[1:] if isArgs else ()
                         try:
                             self.web.create_reaction(message, '✅')
-                            return function(message, op)
+                            return function(message, op, *args)
                         except Exception as err:
                             self.web.delete_reaction(message, '✅')
                             self.web.create_reaction(message, '❌')
