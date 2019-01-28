@@ -46,9 +46,9 @@ class Interface(requests.Session):
         method = getattr(super(), callType)
         response = method(DiscordAPI+call,*args,**kwargs)
         code, payload = response.status_code, None
-        if code is not 204:
+        if code != 204:
             payload = Map(response.json())
-        if code is 429:
+        if code == 429:
             time.sleep(payload['retry_after'] / 995)
             return s.call(callType,call,*args,**kwargs)
         return (code, payload)

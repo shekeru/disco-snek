@@ -4,7 +4,6 @@ import logging, time
 @user.add_events('MESSAGE_CREATE')
 @user.prefix('?', ['ping', 'delay'])
 def check_ping(msg, op):
-    raise Exception('error')
     stamp = time.monotonic()
     response = user.web.create_message(msg.channel_id, {'content': 'Pong!'})[1]
     delay = int(round((time.monotonic() - stamp) * 1000))

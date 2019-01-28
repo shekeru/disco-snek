@@ -1,7 +1,7 @@
 #--Imports
 from functools import wraps
+from threading import Timer, Thread
 from shared import sockets, rest
-from threading import Thread
 from queue import Queue
 import traceback, logging
 class Interface:
