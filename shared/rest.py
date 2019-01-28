@@ -23,20 +23,31 @@ class Interface(requests.Session):
     def simple_message(self, channel_id, text):
         return self.create_message(channel_id, {'content': text})
     # message editing
-    def edit_internal(self, channel_id, id, payload):
+    def message_modify(self, channel_id, id, payload):
         return self.patch(f"/channels/{channel_id}/messages/{id}",
             json = payload)
-    def edit_message(self, **message):
-        return self.edit_internal(message['channel_id'],
-            message['id'], message)
+    def edit_message(self, message, new_message):
+        return self.message_modify(message['channel_id'],
+            message['id'], new_message)
     # message deletion
     def delete_message(self, channel_id, id):
         return self.delete(f"/channels/{channel_id}/messages/{id}")
+    # reactions
+    def react_create(self, channel_id, id, emoji, who = '@me'):
+        return self.put(f"/channels/{channel_id}/messages/{id}/reactions/{emoji}/{who}")
+    def react_remove(self, channel_id, id, emoji, who = '@me'):
+        return self.delete(f"/channels/{channel_id}/messages/{id}/reactions/{emoji}/{who}")
+    def create_reaction(self, message, emoji):
+        return self.react_create(message['channel_id'], message['id'], emoji)
+    def delete_reaction(self, message, emoji):
+        return self.react_remove(message['channel_id'], message['id'], emoji)
     # Autism Calls
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)
         response = method(DiscordAPI+call,*args,**kwargs)
-        code, payload = response.status_code, Map(response.json())
+        code, payload = response.status_code, None
+        if code is not 204:
+            payload = Map(response.json())
         if code is 429:
             time.sleep(payload['retry_after'] / 995)
             return s.call(callType,call,*args,**kwargs)
