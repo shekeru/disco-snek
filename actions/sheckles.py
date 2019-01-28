@@ -12,14 +12,11 @@ def fuck_robon(msg, op):
         logging.info(f'[TG-Robon-2.0] {reply}')
 
 @user.message_create
-@user.message_update
-def local_print(message, code):
-    logging.info(f"{code} >>> {message.content}")
-
+@user.prefix('>', ['fuck', 'frick'])
 def alt_robon(msg, op):
     reply = 'Love you, %s <3' % msg.author.username
     user.web.simple_message(msg.channel_id, reply)
     logging.info(f'[TG-Robon-3.0] {reply}')
-
-test = user.prefix('>', ['fuck', 'frick'])(alt_robon)
-user.message_create(test)
+#
+# test = user.prefix('>', ['fuck', 'frick'])(alt_robon)
+# user.message_create(test)

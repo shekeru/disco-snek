@@ -56,8 +56,8 @@ class Interface():
             except:
                 logging.error('<%s> %s' % (event['t'], traceback.format_exc()))
         if event['op'] is 0:
-            #self.main.events.put(event)
-            self.main.publish(event)
+            self.main.events.put(event)
+            #self.main.publish(event)
     # heartbeat
     def resync(self):
         self.trigger.cancel()
