@@ -14,7 +14,7 @@ class Interface:
             'MESSAGE_CREATE': [],
             'MESSAGE_UPDATE': [],
             'MESSAGE_DELETE': []
-        }; #self.t.start()
+        }; self.t.start()
     def show_actions(self):
         return self.actions
     def loop_run(self):
