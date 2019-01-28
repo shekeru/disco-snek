@@ -24,8 +24,7 @@ class Interface(requests.Session):
         return self.create_message(channel_id, {'content': text})
     # message editing
     def edit_message(self, message, payload):
-        payload['id'] = message[1].id
-        return self.post(f"/channels/{message[1].channel_id}/messages", json = payload)
+        return self.patch(f"/channels/{message[1].channel_id}/messages/{message[1].id}", json = payload)
     # Autism Calls
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)
