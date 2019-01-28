@@ -4,9 +4,8 @@ import logging, time
 @user.add_events('MESSAGE_CREATE')
 @user.prefix('?', ['ping', 'delay'])
 def check_ping(msg, op):
-
     stamp = time.monotonic()
-    response = user.web.create_message(msg.channel_id, {'content': 'Pong!'})
+    response = user.web.create_message(msg.channel_id, {'content': 'Pong!'})[1]
     delay = int(round((time.monotonic() - stamp) * 1000))
     embed = {
         'title': 'Ping Info',
@@ -17,5 +16,5 @@ def check_ping(msg, op):
         'footer': { 'text': 'Ping is measured by bot' },
         'thumbnail': { 'url': 'http://cdn.onlinewebfonts.com/svg/img_426066.png' }
     }
-
-    user.web.edit_message(response, {'content': 'Pong!', 'embed': embed})
+    response.update({'content': 'Pong!', 'embed': embed})
+    user.web.edit_message(**response)

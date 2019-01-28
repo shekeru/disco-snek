@@ -22,12 +22,16 @@ class Interface(requests.Session):
             json = payload)
     def simple_message(self, channel_id, text):
         return self.create_message(channel_id, {'content': text})
-    # message editing & deletion
-    def edit_message(self, message, payload):
-        return self.patch(f"/channels/{message[1].channel_id}/messages/{message[1].id}",
+    # message editing
+    def edit_internal(self, channel_id, id, payload):
+        return self.patch(f"/channels/{channel_id}/messages/{id}",
             json = payload)
-    def delete_message(self, message):
-        return self.delete(f"/channels/{message[1].channel_id}/messages/{message[1].id}")
+    def edit_message(self, **message):
+        return self.edit_internal(message['channel_id'],
+            message['id'], message)
+    # message deletion
+    def delete_message(self, channel_id, id):
+        return self.delete(f"/channels/{channel_id}/messages/{id}")
     # Autism Calls
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)
