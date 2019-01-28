@@ -48,8 +48,8 @@ class Interface:
         return partial
     #specialized hooks
     def message_create(self, function):
-        return self.quick_append('MESSAGE_CREATE',
-            function)
+        return self.quick_append('MESSAGE_CREATE', function)
     def message_update(self, function):
-        return self.quick_append('MESSAGE_UPDATE',
-            function)
+        return self.quick_append('MESSAGE_UPDATE', function)
+    def message_delete(self, function):
+        return self.quick_append('MESSAGE_DELETE', function)

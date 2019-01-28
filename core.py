@@ -8,3 +8,4 @@ if __name__ != '__main__':
 
 import actions.sheckles
 import actions.debug
+import actions.ping
