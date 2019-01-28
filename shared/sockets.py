@@ -7,7 +7,7 @@ from shared.utils import Map
 class Interface():
     # Socket shit
     def __init__(self, main):
-        self.seq, self.session, self.interval = 0, "", None
+        self.seq, self.session, self.interval = 0, '', None
         self.main, self.trigger = main, Timer(0, lambda: 0)
         self.spawn_ws()
     def spawn_ws(self):
@@ -17,6 +17,7 @@ class Interface():
         ); self.ws.t = Thread(target = lambda: self.ws.run_forever())
         self.trigger.cancel(), self.ws.t.start()
     def send(self, event):
+        logging.debug(f"Sending event code -> {event['op']}")
         self.ws.send(json.dumps(event))
     def on_message(self, message):
         event = Map(json.loads(message))
@@ -43,7 +44,7 @@ class Interface():
             return self.Resume()
         if event['op'] is 9: # Event: Invalid Session
             logging.info('[Gateway-09] Invalidated %s' % self.session)
-            self.session = ""; return self.Identify()
+            self.session = None; return self.Identify()
         if event['op'] is 7: # Event: Reconnect
             return self.ws.close()
         if event['t'] == 'READY':
@@ -55,6 +56,7 @@ class Interface():
             except:
                 logging.error('<%s> %s' % (event['t'], traceback.format_exc()))
         if event['op'] is 0:
+            #self.main.events.put(event)
             self.main.publish(event)
     # heartbeat
     def resync(self):
