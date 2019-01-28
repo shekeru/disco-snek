@@ -40,5 +40,7 @@ def weeb(msg, op):
         user.web.simple_message(msg.channel_id, reply)
         logging.info('[Weebaboo-ERP] %s' % reply)
 
-# test = user.prefix('>', ['fuck', 'frick'])(alt_robon)
-# user.message_create(test)
+@user.message_create
+@user.prefix('>', ['owo', 'uwu'], checks = False)
+def gay_flag(msg, op):
+    user.web.simple_message(msg.channel_id, ':gay_pride_flag:')

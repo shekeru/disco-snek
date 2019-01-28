@@ -39,7 +39,7 @@ class Interface:
             return function
         return partial
     # prefix filtering logic
-    def prefix(self, char, cmds):
+    def prefix(self, char, cmds, checks = True):
         def partial(function):
             def execute(message, op):
                 for cmd in cmds:
@@ -47,11 +47,13 @@ class Interface:
                         isArgs = getargspec(function).varargs
                         args = message.content.split()[1:] if isArgs else ()
                         try:
-                            self.web.create_reaction(message, '✅')
+                            if checks:
+                                self.web.create_reaction(message, '✅')
                             return function(message, op, *args)
                         except Exception as err:
-                            self.web.delete_reaction(message, '✅')
-                            self.web.create_reaction(message, '❌')
+                            if checks:
+                                self.web.delete_reaction(message, '✅')
+                                self.web.create_reaction(message, '❌')
                             logging.error(traceback.format_exc())
                 return lambda : None
             return execute
