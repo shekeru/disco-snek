@@ -15,7 +15,8 @@ def check_ping(msg, op):
         'fields': [
             { 'name': 'Current Ping', 'value': ''.join(['**', str(delay), 'ms**']) }
         ],
-        'footer': { 'text': 'Ping as measured by bot' }
+        'footer': { 'text': 'Ping is measured by bot' },
+        'thumbnail': { 'url': 'http://cdn.onlinewebfonts.com/svg/img_426066.png' }
     }
 
     user.web.edit_message(response, {'content': 'Pong!', 'embed': embed})
