@@ -3,8 +3,7 @@ from functools import wraps
 from shared import sockets, rest
 from threading import Thread
 from queue import Queue
-import traceback
-import logging
+import traceback, logging
 class Interface:
     def __init__(self, token, bot = True):
         self.token, self.bot = token, bot
