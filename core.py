@@ -6,3 +6,4 @@ user = bot.Interface(creds.token)
 
 import actions.sheckles
 import actions.debug
+import actions.ping
