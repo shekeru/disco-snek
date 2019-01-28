@@ -3,6 +3,7 @@ from functools import wraps
 from shared import sockets, rest
 from threading import Thread
 from queue import Queue
+import traceback
 class Interface:
     def __init__(self, token, bot = True):
         self.token, self.bot = token, bot
@@ -42,7 +43,14 @@ class Interface:
             def execute(message, op):
                 for cmd in cmds:
                     if message.content.startswith(char+cmd):
-                        return function(message, op)
+                        try:
+                            self.web.create_reaction(message, ✅)
+                            return function(message, op)
+                        except Exception as err:
+                            self.web.delete_reaction(message, ✅)
+                            self.web.create_reaction(message, ❌)
+                            traceback.print_exc()
+                            logging.error(err)
                 return lambda : None
             return execute
         return partial

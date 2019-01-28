@@ -24,10 +24,15 @@ class Interface(requests.Session):
         return self.create_message(channel_id, {'content': text})
     # message editing & deletion
     def edit_message(self, message, payload):
-        return self.patch(f"/channels/{message[1].channel_id}/messages/{message[1].id}",
+        return self.patch(f"/channels/{message.channel_id}/messages/{message.id}",
             json = payload)
     def delete_message(self, message):
-        return self.delete(f"/channels/{message[1].channel_id}/messages/{message[1].id}")
+        return self.delete(f"/channels/{message.channel_id}/messages/{message.id}")
+    # reactions
+    def create_reaction(self, message, emoji):
+        return self.put(f"/channels/{message.channel_id}/messages/{message.id}/reactions/{emoji}/@me")
+    def delete_reaction(self, message, emoji):
+        return self.delete(f"/channels/{message.channel_id}/messages/{message.id}/reactions/{emoji}/@me")
     # Autism Calls
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)

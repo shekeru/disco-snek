@@ -6,7 +6,7 @@ import logging, time
 def check_ping(msg, op):
 
     stamp = time.monotonic()
-    response = user.web.create_message(msg.channel_id, {'content': 'Pong!'})
+    response = user.web.create_message(msg.channel_id, {'content': 'Pong!'})[1]
     delay = int(round((time.monotonic() - stamp) * 1000))
     embed = {
         'title': 'Ping Info',
