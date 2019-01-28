@@ -3,7 +3,8 @@ import logging
 
 from random import randint
 
-@user.add_events('MESSAGE_CREATE')
+#@user.add_events('MESSAGE_CREATE')
+@user.message_create
 def fuck_robon(msg, op):
     if msg.mention_everyone:
         reply = 'Fuck you, %s. :ok_hand::skin-tone-%s:' % (msg.author.username, randint(1,5))
@@ -13,7 +14,7 @@ def fuck_robon(msg, op):
 @user.message_create
 @user.message_update
 def local_print(message, code):
-    logging.info(f"{code} >>> {message['content']}")
+    logging.info(f"{code} >>> {message.content}")
 
 def alt_robon(msg, op):
     reply = 'Love you, %s <3' % msg.author.username
