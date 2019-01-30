@@ -81,3 +81,48 @@ def rec_dict(data):
     if isinstance(data, (tuple, list, set, frozenset)):
         return type(data)(rec_dict(v) for v in data)
     return data
+#-- New Class
+from threading import Lock
+def struct(insert):
+    if isinstance(insert, dict):
+        for key in insert:
+            insert[key] = struct(insert[key])
+        return dict_safe(insert)
+    if isinstance(insert, list):
+        new_list = list_safe([])
+        for value in insert:
+            new_list.append(struct(value))
+        return new_list
+    return insert
+class dict_safe(dict):
+    def __init__(self, insert):
+        super().__init__(insert)
+        self.__dict__['_lock'] = Lock()
+    def __getattr__(self, attr):
+        return self.get(attr)
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+    def __setitem__(self, key, value):
+        with self._lock:
+            super().__setitem__(key, value)
+    def __delattr__(self, item):
+        self.__delitem__(item)
+    def __delitem__(self, key):
+        with self._lock:
+            super().__delitem__(key)
+    def __iter__(self):
+        with self._lock:
+            return super().__iter__()
+class list_safe(list):
+    def __init__(self, insert):
+        super().__init__(insert)
+        self.__dict__['_lock'] = Lock()
+    def __iter__(self):
+        with self._lock:
+            return super().__iter__()
+# t = construct({'a': {'c': 3, 'e': 7}, 'b': 2})
+# t.update({'c': 5})
+# for k in t:
+#     print(t[k])
+# t._lock
+# t.c

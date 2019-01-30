@@ -2,7 +2,7 @@
 DiscordAPI = "wss://gateway.discord.gg/?encoding=json&v=6"
 import json, websocket, sys, traceback, logging
 from threading import Thread, Timer
-from shared.utils import Map
+from shared.utils import Map, struct
 #websocket.enableTrace(True)
 class Interface():
     # Socket shit
@@ -20,10 +20,10 @@ class Interface():
         logging.debug(f"Sending event code -> {event['op']}")
         self.ws.send(json.dumps(event))
     def on_message(self, message):
-        event = Map(json.loads(message))
+        event = struct(json.loads(message))
         if event['s']:
             self.seq = event['s']
-        logging.debug(event), self.dispatch(event)
+        self.dispatch(event)#, logging.debug(event)
     def on_open(self):
         pass
     def on_error(self, error):

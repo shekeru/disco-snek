@@ -1,5 +1,5 @@
+from shared.utils import Map, struct
 import logging, requests, time
-from shared.utils import Map
 #Constants
 DiscordAPI = "https://discordapp.com/api/v6"
 #--Rest API
@@ -16,22 +16,18 @@ class Interface(requests.Session):
             logging.debug(f"Hello {self.main.profile['username']}")
         else:
             logging.error("Token is invalid...")
-    # message api
-    def upsert_message(self, call, channel_id, payload, files = {}):
-        return self.call(call, f"/channels/{channel_id}/messages", **{
-            ('data' if files else 'json'): payload,
-            'files': files
-        })
     # gen 1 calls
     def create_message(self, channel_id, payload, files = {}):
-        return self.upsert_message('post', channel_id, payload, files)
+        return self.post(f"/channels/{channel_id}/messages",
+            json = payload, files = files)
     def simple_message(self, channel_id, text):
-        return self.create_message(channel_id, json = {'content': text})
+        return self.create_message(channel_id, {'content': text})
     # message editing
-    def message_modify(self, channel_id, id, payload, files = {}):
-        return self.upsert_message('patch', channel_id, payload, files)
+    def modify_message(self, channel_id, id, payload, files = {}):
+        return self.patch(f"/channels/{channel_id}/messages/{id}",
+            json = payload, files = files)
     def edit_message(self, message, new_message):
-        return self.message_modify(message['channel_id'],
+        return self.modify_message(message['channel_id'],
             message['id'], new_message)
     # message deletion
     def delete_message(self, channel_id, id):
@@ -53,7 +49,7 @@ class Interface(requests.Session):
         response = method(DiscordAPI+call,*args, **kwargs)
         code, payload = response.status_code, None
         if code != 204:
-            payload = Map(response.json())
+            payload = struct(response.json())
         if code == 429:
             time.sleep(payload['retry_after'] / 995)
             return s.call(callType,call,*args,**kwargs)
