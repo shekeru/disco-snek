@@ -1,10 +1,9 @@
 #--Imports
-from functools import wraps
+import traceback, logging
+import functools, decorator, inspect
 from threading import Timer, Thread
-from inspect import getargspec
 from shared import sockets, rest
 from queue import Queue
-import traceback, logging
 class Interface:
     def __init__(self, token, bot = True):
         self.token, self.bot = token, bot
@@ -16,6 +15,7 @@ class Interface:
             'MESSAGE_UPDATE': [],
             'MESSAGE_DELETE': []
         }; self.t.start()
+        self.identities = {}
     def show_actions(self):
         return self.actions
     def loop_run(self):
@@ -27,10 +27,31 @@ class Interface:
     def publish(self, event):
         if event['t'] in self.actions:
             for action in self.actions[event['t']]:
-                action(event['d'], event['t'])
+                try:
+                    action(event['d'], event['t'])
+                except:
+                    logging.error(traceback.format_exc())
     def quick_append(self, key, function):
-        self.actions[key].append(function)
-        return function
+        new_function = self.comp_format(function)
+        self.actions[key].append(new_function)
+        return new_function
+    def comp_format(self, function):
+        function_id = inspect.getmodule(function).__name__
+        function_id += '-' + function.__name__
+        @functools.wraps(function)
+        def formatted(message, op, *args, **kwargs):
+            args, spec = [*args], inspect.getargspec(function)
+            words = (message.content or "").split()[1:]
+            logging.debug(f"{function_id} - {spec}")
+            for arg in spec.args[2:]:
+                args.append(words.pop(0))
+            if spec.varargs:
+                args += words
+            #logging.info(f"{function.__name__} - {args}")
+            return function(message, op, *args, **kwargs)
+        if function_id not in self.identities:
+            self.identities[function_id] = formatted
+        return self.identities[function_id]
     # generic event hook
     def add_events(self, *keys):
         def partial(function):
@@ -40,12 +61,14 @@ class Interface:
         return partial
     # prefix filtering logic
     def prefix(self, char, cmds, checks = True):
-        def partial(function):
-            def execute(message, op):
+        def wrapper(function):
+            @functools.wraps(function)
+            def executed(message, op, *args):
+                spec = inspect.getargspec(function)
+                if not spec.varargs:
+                    args = [*args][:len(spec.args) - 2]
                 for cmd in cmds:
                     if message.content.startswith(char+cmd):
-                        isArgs = getargspec(function).varargs
-                        args = message.content.split()[1:] if isArgs else ()
                         try:
                             if checks:
                                 self.web.create_reaction(message, '✅')
@@ -54,10 +77,9 @@ class Interface:
                             if checks:
                                 self.web.delete_reaction(message, '✅')
                                 self.web.create_reaction(message, '❌')
-                            logging.error(traceback.format_exc())
                 return lambda : None
-            return execute
-        return partial
+            return executed
+        return wrapper
     #specialized hooks
     def message_create(self, function):
         return self.quick_append('MESSAGE_CREATE', function)

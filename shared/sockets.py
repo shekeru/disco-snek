@@ -46,6 +46,7 @@ class Interface():
             logging.info('[Gateway-09] Invalidated %s' % self.session)
             self.session = None; return self.Identify()
         if event['op'] is 7: # Event: Reconnect
+            logging.info('[Gateway-07] Instructed to reconnect...')
             return self.ws.close()
         if event['t'] == 'READY':
             logging.info('[Connection] Session %s' % event['d']['session_id'])
