@@ -16,16 +16,20 @@ class Interface(requests.Session):
             logging.debug(f"Hello {self.main.profile['username']}")
         else:
             logging.error("Token is invalid...")
-    # message creation
-    def create_message(self, channel_id, payload):
-        return self.post(f"/channels/{channel_id}/messages",
-            json = payload)
+    # message api
+    def upsert_message(self, call, channel_id, payload, files = {}):
+        return self.call(call, f"/channels/{channel_id}/messages", **{
+            ('data' if files else 'json'): payload,
+            'files': files
+        })
+    # gen 1 calls
+    def create_message(self, channel_id, payload, files = {}):
+        return self.upsert_message('post', channel_id, payload, files)
     def simple_message(self, channel_id, text):
-        return self.create_message(channel_id, {'content': text})
+        return self.create_message(channel_id, json = {'content': text})
     # message editing
-    def message_modify(self, channel_id, id, payload):
-        return self.patch(f"/channels/{channel_id}/messages/{id}",
-            json = payload)
+    def message_modify(self, channel_id, id, payload, files = {}):
+        return self.upsert_message('patch', channel_id, payload, files)
     def edit_message(self, message, new_message):
         return self.message_modify(message['channel_id'],
             message['id'], new_message)
@@ -44,7 +48,9 @@ class Interface(requests.Session):
     # Autism Calls
     def call(s,callType,call,*args,**kwargs):
         method = getattr(super(), callType)
-        response = method(DiscordAPI+call,*args,**kwargs)
+        for key in kwargs.get('files', []):
+            kwargs['files'][key].seek(0,0)
+        response = method(DiscordAPI+call,*args, **kwargs)
         code, payload = response.status_code, None
         if code != 204:
             payload = Map(response.json())

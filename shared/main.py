@@ -77,6 +77,7 @@ class Interface:
                             if checks:
                                 self.web.delete_reaction(message, '✅')
                                 self.web.create_reaction(message, '❌')
+                                logging.error(traceback.format_exc())
                 return lambda : None
             return executed
         return wrapper
