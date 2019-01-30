@@ -1,0 +1,2 @@
+token = ""
+partner = False
