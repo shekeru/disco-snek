@@ -1,12 +1,14 @@
 #--Imports
 import traceback, logging
+from shared import sockets, system, rest
 import functools, decorator, inspect
 from threading import Timer, Thread
-from shared import sockets, rest
 from queue import Queue
+
 class Interface:
     def __init__(self, token, bot = True):
         self.token, self.bot = token, bot
+        self.state = system.Interface(self)
         self.web = rest.Interface(self)
         self.ws = sockets.Interface(self)
         self.t = Thread(target = self.loop_run)

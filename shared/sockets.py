@@ -53,7 +53,7 @@ class Interface():
             self.session = event['d']['session_id']
         if event['t']:
             try:
-                pass#self.mainystem.process(event['t'], event['d'])
+                self.main.state.process(event['t'], event['d'])
             except:
                 logging.error('<%s> %s' % (event['t'], traceback.format_exc()))
         if event['op'] is 0:
@@ -88,5 +88,13 @@ class Interface():
                 "token": self.token,
                 "session_id": self.session,
                 "seq": self.seq
+            }
+        })
+    def Request_Guild_Members(self, guild_id):
+        self.send({"op": 8,
+            "d": {
+                "guild_id": guild_id,
+                "query": "",
+                "limit": 0
             }
         })
